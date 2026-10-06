@@ -13,6 +13,87 @@ st.set_page_config(
     layout="wide"
 )
 
+USERS = {
+    "student": "1234",
+    "admin": "admin123",
+    "bhuvaneswari": "12345"
+}
+
+
+def login_page():
+
+    st.title("🔐 AI Student Study Assistant")
+
+    st.subheader("Login to continue")
+
+    username = st.text_input(
+        "👤 Username",
+        placeholder="Enter username"
+    )
+
+    password = st.text_input(
+        "🔑 Password",
+        type="password",
+        placeholder="Enter password"
+    )
+
+    login_button = st.button(
+        "🚀 Login",
+        use_container_width=True
+    )
+
+    if login_button:
+
+        if username in USERS and USERS[username] == password:
+
+            st.session_state["logged_in"] = True
+            st.session_state["username"] = username
+
+            st.success("✅ Login successful!")
+
+            st.rerun()
+
+        else:
+
+            st.error(
+                "❌ Invalid username or password."
+            )
+
+    st.markdown("---")
+
+    st.info(
+        "Demo Login\n\n"
+        "Username: student\n\n"
+        "Password: 1234"
+    )
+
+
+ 
+
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+
+if not st.session_state["logged_in"]:
+
+    login_page()
+
+    st.stop()
+
+
+ 
+st.sidebar.success(
+    f"👋 Welcome, {st.session_state['username']}!"
+)
+
+if st.sidebar.button("🚪 Logout"):
+
+    st.session_state["logged_in"] = False
+    st.session_state["username"] = ""
+
+    st.rerun()
+
+
  
 
 st.title("🎓 AI-Powered Student Study Assistant")
@@ -58,15 +139,14 @@ OLLAMA_MODEL = "llama3.2"
 def ask_ollama(prompt):
     try:
         response = requests.post(
-            OLLAMA_URL,
+            "http://localhost:11434/api/generate",
             json={
-                "model": OLLAMA_MODEL,
+                "model": "llama3.2",
                 "prompt": prompt,
                 "stream": False
             },
-            timeout=120
+            timeout=300
         )
-
         if response.status_code == 200:
             data = response.json()
             return data.get("response", "No response generated.")
